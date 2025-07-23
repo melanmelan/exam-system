@@ -4,12 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Quiz System</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://unpkg.com/lucide-static@0.263.1/font/lucide.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .practice-mode {
+            background-color: #dbeafe;
+            color: #1e40af;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .question-counter {
+            color: #666;
+        }
+
+        .finish-btn {
+            background-color: #7c3aed;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .finish-btn:hover {
+            background-color: #6d28d9;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #7c3aed;
+            width: 61%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-wrapper {
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .option-wrapper.correct {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+
+        .option-wrapper.incorrect {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+
+        .option-wrapper.unselected {
+            opacity: 0.6;
+        }
+
+        .option-button {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .option-button:hover:not(:disabled) {
+            background-color: #f9fafb;
+        }
+
+        .option-button:disabled {
+            cursor: not-allowed;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #9ca3af;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .icon-check {
+            width: 20px;
+            height: 20px;
+            color: #10b981;
+        }
+
+        .icon-x {
+            width: 20px;
+            height: 20px;
+            color: #ef4444;
+        }
+
+        .explanation {
+            padding: 12px 16px;
+            margin: 0 16px 16px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.6;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .explanation.correct {
+            background-color: #d1fae5;
+            border: 1px solid #a7f3d0;
+        }
+
+        .explanation.incorrect {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+        }
+
         @keyframes slideDown {
             from {
                 opacity: 0;
@@ -20,184 +189,197 @@
                 transform: translateY(0);
             }
         }
-        .slide-down {
-            animation: slideDown 0.3s ease-out;
-            transform-origin: top;
+
+        .feedback-message {
+            margin-top: 30px;
+            padding: 16px;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .feedback-icon {
+            width: 24px;
+            height: 24px;
+            color: #10b981;
+            flex-shrink: 0;
+        }
+
+        .feedback-text h3 {
+            color: #166534;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .feedback-text p {
+            color: #15803d;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <span class="practice-mode">Practice mode</span>
+                <span class="question-counter">Question 55/90</span>
+            </div>
+            <button class="finish-btn">Finish test</button>
+        </div>
 
-    <script type="text/babel">
-        const { useState } = React;
-        
-        // Icon components
-        const CheckCircle = () => (
-            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <!-- Progress bar -->
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <!-- Question -->
+        <h2 class="question-text">
+            In digital forensics, which of the following is MOST crucial to consider when determining the requirements for an investigative report?
+        </h2>
+
+        <!-- Options -->
+        <div class="options-container" id="optionsContainer">
+            <!-- Options will be inserted here by JavaScript -->
+        </div>
+
+        <!-- Feedback message -->
+        <div id="feedbackMessage" style="display: none;" class="feedback-message">
+            <svg class="feedback-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-        );
-        
-        const XCircle = () => (
-            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-        );
+            <div class="feedback-text">
+                <h3 id="feedbackTitle">Correct answer. Good job!</h3>
+                <p>Review the explanations above to learn more.</p>
+            </div>
+        </div>
+    </div>
 
-        const QuizSystem = () => {
-            const [selectedAnswer, setSelectedAnswer] = useState(null);
-            const [showExplanations, setShowExplanations] = useState(false);
-
-            const question = {
-                id: 55,
-                text: "In digital forensics, which of the following is MOST crucial to consider when determining the requirements for an investigative report?",
-                options: [
-                    {
-                        id: 1,
-                        text: "The software tools used in the investigation",
-                        explanation: "While software tools are important for conducting the investigation, they are not the most crucial factor when determining report requirements. The tools used should be documented, but they don't drive the report structure.",
-                        isCorrect: false
-                    },
-                    {
-                        id: 2,
-                        text: "The intended audience of the report",
-                        explanation: "This is the correct answer. The intended audience is the MOST crucial factor because it determines the level of technical detail, format, language, and content structure. Reports for technical teams differ significantly from those for management or legal teams.",
-                        isCorrect: true
-                    },
-                    {
-                        id: 3,
-                        text: "The personal preferences of the forensic analyst",
-                        explanation: "Personal preferences should not dictate report requirements. Reports must follow established standards and meet the needs of the intended audience, not the analyst's preferences.",
-                        isCorrect: false
-                    },
-                    {
-                        id: 4,
-                        text: "The geographical location of the incident",
-                        explanation: "While location may affect legal requirements and jurisdiction, it is not the most crucial factor for determining report requirements. The audience's needs take precedence.",
-                        isCorrect: false
-                    }
-                ]
-            };
-
-            const handleAnswerSelect = (optionId) => {
-                setSelectedAnswer(optionId);
-                setTimeout(() => {
-                    setShowExplanations(true);
-                }, 300);
-            };
-
-            const getOptionStyle = (option) => {
-                if (!selectedAnswer) return '';
-                
-                if (option.isCorrect) {
-                    return 'border-green-500 bg-green-50';
-                } else if (selectedAnswer === option.id && !option.isCorrect) {
-                    return 'border-red-500 bg-red-50';
+    <script>
+        // Quiz data
+        const quizData = {
+            options: [
+                {
+                    id: 1,
+                    text: "The software tools used in the investigation",
+                    explanation: "While software tools are important for conducting the investigation, they are not the most crucial factor when determining report requirements. The tools used should be documented, but they don't drive the report structure.",
+                    isCorrect: false
+                },
+                {
+                    id: 2,
+                    text: "The intended audience of the report",
+                    explanation: "This is the correct answer. The intended audience is the MOST crucial factor because it determines the level of technical detail, format, language, and content structure. Reports for technical teams differ significantly from those for management or legal teams.",
+                    isCorrect: true
+                },
+                {
+                    id: 3,
+                    text: "The personal preferences of the forensic analyst",
+                    explanation: "Personal preferences should not dictate report requirements. Reports must follow established standards and meet the needs of the intended audience, not the analyst's preferences.",
+                    isCorrect: false
+                },
+                {
+                    id: 4,
+                    text: "The geographical location of the incident",
+                    explanation: "While location may affect legal requirements and jurisdiction, it is not the most crucial factor for determining report requirements. The audience's needs take precedence.",
+                    isCorrect: false
                 }
-                return 'opacity-70';
-            };
-
-            const getExplanationStyle = (option) => {
-                if (option.isCorrect) {
-                    return 'bg-green-100 border-green-300';
-                } else {
-                    return 'bg-red-100 border-red-300';
-                }
-            };
-
-            return (
-                <div className="max-w-4xl mx-auto p-6">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-4">
-                            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-medium">
-                                Practice mode
-                            </span>
-                            <span className="text-gray-600">Question {question.id}/90</span>
-                        </div>
-                        <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
-                            Finish test
-                        </button>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-3 mb-8">
-                        <div className="bg-purple-600 h-3 rounded-full" style={{ width: '61%' }}></div>
-                    </div>
-
-                    {/* Question */}
-                    <div className="mb-6">
-                        <h2 className="text-lg font-semibold mb-6">
-                            {question.text}
-                        </h2>
-                    </div>
-
-                    {/* Answer options */}
-                    <div className="space-y-4">
-                        {question.options.map((option) => (
-                            <div key={option.id} className="relative">
-                                <div
-                                    className={`border-2 rounded-lg transition-all duration-300 ${
-                                        selectedAnswer ? getOptionStyle(option) : 'border-gray-300 hover:border-gray-400'
-                                    }`}
-                                >
-                                    <button
-                                        onClick={() => handleAnswerSelect(option.id)}
-                                        disabled={selectedAnswer !== null}
-                                        className="w-full p-4 text-left flex items-start gap-3 disabled:cursor-not-allowed"
-                                    >
-                                        <div className="mt-1">
-                                            {selectedAnswer === null ? (
-                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
-                                            ) : option.isCorrect ? (
-                                                <CheckCircle />
-                                            ) : selectedAnswer === option.id ? (
-                                                <XCircle />
-                                            ) : (
-                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
-                                            )}
-                                        </div>
-                                        <span className="flex-1">{option.text}</span>
-                                    </button>
-
-                                    {/* Explanation */}
-                                    {showExplanations && (
-                                        <div
-                                            className={`mx-4 mb-4 p-3 border rounded slide-down ${
-                                                getExplanationStyle(option)
-                                            }`}
-                                        >
-                                            <p className="text-sm leading-relaxed">{option.explanation}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Feedback message */}
-                    {selectedAnswer && (
-                        <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-                            <CheckCircle />
-                            <div>
-                                <p className="font-semibold text-green-800">
-                                    {question.options.find(opt => opt.id === selectedAnswer)?.isCorrect 
-                                        ? "Correct answer. Good job!" 
-                                        : "Incorrect answer."}
-                                </p>
-                                <p className="text-sm text-green-700 mt-1">
-                                    Review the explanations above to learn more.
-                                </p>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
+            ]
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<QuizSystem />);
+        let selectedAnswer = null;
+
+        // Create option elements
+        function createOptions() {
+            const container = document.getElementById('optionsContainer');
+            
+            quizData.options.forEach(option => {
+                const optionWrapper = document.createElement('div');
+                optionWrapper.className = 'option-wrapper';
+                optionWrapper.id = `option-${option.id}`;
+                
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.onclick = () => selectAnswer(option.id);
+                
+                const icon = document.createElement('div');
+                icon.className = 'radio-circle';
+                icon.id = `icon-${option.id}`;
+                
+                const text = document.createElement('span');
+                text.textContent = option.text;
+                
+                button.appendChild(icon);
+                button.appendChild(text);
+                optionWrapper.appendChild(button);
+                
+                container.appendChild(optionWrapper);
+            });
+        }
+
+        // Handle answer selection
+        function selectAnswer(optionId) {
+            if (selectedAnswer !== null) return;
+            
+            selectedAnswer = optionId;
+            const selectedOption = quizData.options.find(opt => opt.id === optionId);
+            
+            // Disable all buttons
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // Apply styles and show explanations
+            quizData.options.forEach(option => {
+                const wrapper = document.getElementById(`option-${option.id}`);
+                const icon = document.getElementById(`icon-${option.id}`);
+                
+                if (option.isCorrect) {
+                    wrapper.classList.add('correct');
+                    icon.innerHTML = `
+                        <svg class="icon-check" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    `;
+                } else if (option.id === optionId) {
+                    wrapper.classList.add('incorrect');
+                    icon.innerHTML = `
+                        <svg class="icon-x" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    `;
+                } else {
+                    wrapper.classList.add('unselected');
+                }
+                
+                // Add explanation
+                setTimeout(() => {
+                    const explanation = document.createElement('div');
+                    explanation.className = `explanation ${option.isCorrect ? 'correct' : 'incorrect'}`;
+                    explanation.textContent = option.explanation;
+                    wrapper.appendChild(explanation);
+                }, 300);
+            });
+            
+            // Show feedback message
+            const feedbackMessage = document.getElementById('feedbackMessage');
+            const feedbackTitle = document.getElementById('feedbackTitle');
+            
+            if (selectedOption.isCorrect) {
+                feedbackTitle.textContent = "Correct answer. Good job!";
+            } else {
+                feedbackTitle.textContent = "Incorrect answer.";
+            }
+            
+            setTimeout(() => {
+                feedbackMessage.style.display = 'flex';
+            }, 500);
+        }
+
+        // Initialize the quiz
+        createOptions();
     </script>
 </body>
 </html>
