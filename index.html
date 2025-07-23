@@ -101,6 +101,7 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             overflow: hidden;
+            position: relative;
         }
 
         .option-wrapper.correct {
@@ -146,18 +147,37 @@
             border-radius: 50%;
             flex-shrink: 0;
             margin-top: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .icon-check {
             width: 20px;
             height: 20px;
             color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .icon-x {
             width: 20px;
             height: 20px;
             color: #ef4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selection-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #9ca3af;
+            border-radius: 50%;
+            position: absolute;
+            left: 24px;
+            top: 24px;
         }
 
         .explanation {
@@ -201,6 +221,23 @@
             gap: 12px;
         }
 
+        .feedback-message.incorrect {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+        .feedback-message.incorrect .feedback-icon {
+            color: #ef4444;
+        }
+
+        .feedback-message.incorrect h3 {
+            color: #991b1b;
+        }
+
+        .feedback-message.incorrect p {
+            color: #dc2626;
+        }
+
         .feedback-icon {
             width: 24px;
             height: 24px;
@@ -217,6 +254,10 @@
         .feedback-text p {
             color: #15803d;
             font-size: 14px;
+        }
+
+        .feedback-message.incorrect .feedback-text p {
+            color: #dc2626;
         }
     </style>
 </head>
@@ -350,6 +391,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     `;
+                    // Add selection dot for incorrect answer
+                    const dot = document.createElement('div');
+                    dot.className = 'selection-dot';
+                    wrapper.appendChild(dot);
                 } else {
                     wrapper.classList.add('unselected');
                 }
@@ -366,11 +411,20 @@
             // Show feedback message
             const feedbackMessage = document.getElementById('feedbackMessage');
             const feedbackTitle = document.getElementById('feedbackTitle');
+            const feedbackIcon = feedbackMessage.querySelector('.feedback-icon');
             
             if (selectedOption.isCorrect) {
                 feedbackTitle.textContent = "Correct answer. Good job!";
+                feedbackMessage.classList.remove('incorrect');
+                feedbackIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                `;
             } else {
                 feedbackTitle.textContent = "Incorrect answer.";
+                feedbackMessage.classList.add('incorrect');
+                feedbackIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                `;
             }
             
             setTimeout(() => {
