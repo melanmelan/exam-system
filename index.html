@@ -1,172 +1,203 @@
-import React, { useState } from 'react';
-import { CheckCircle, XCircle } from 'lucide-react';
-
-const QuizSystem = () => {
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [showExplanations, setShowExplanations] = useState(false);
-
-  const question = {
-    id: 55,
-    text: "In digital forensics, which of the following is MOST crucial to consider when determining the requirements for an investigative report?",
-    options: [
-      {
-        id: 1,
-        text: "The software tools used in the investigation",
-        explanation: "While software tools are important for conducting the investigation, they are not the most crucial factor when determining report requirements. The tools used should be documented, but they don't drive the report structure.",
-        isCorrect: false
-      },
-      {
-        id: 2,
-        text: "The intended audience of the report",
-        explanation: "This is the correct answer. The intended audience is the MOST crucial factor because it determines the level of technical detail, format, language, and content structure. Reports for technical teams differ significantly from those for management or legal teams.",
-        isCorrect: true
-      },
-      {
-        id: 3,
-        text: "The personal preferences of the forensic analyst",
-        explanation: "Personal preferences should not dictate report requirements. Reports must follow established standards and meet the needs of the intended audience, not the analyst's preferences.",
-        isCorrect: false
-      },
-      {
-        id: 4,
-        text: "The geographical location of the incident",
-        explanation: "While location may affect legal requirements and jurisdiction, it is not the most crucial factor for determining report requirements. The audience's needs take precedence.",
-        isCorrect: false
-      }
-    ]
-  };
-
-  const handleAnswerSelect = (optionId) => {
-    setSelectedAnswer(optionId);
-    setTimeout(() => {
-      setShowExplanations(true);
-    }, 300);
-  };
-
-  const getOptionStyle = (option) => {
-    if (!selectedAnswer) return '';
-    
-    if (option.isCorrect) {
-      return 'border-green-500 bg-green-50';
-    } else if (selectedAnswer === option.id && !option.isCorrect) {
-      return 'border-red-500 bg-red-50';
-    }
-    return 'opacity-70';
-  };
-
-  const getExplanationStyle = (option) => {
-    if (option.isCorrect) {
-      return 'bg-green-100 border-green-300';
-    } else {
-      return 'bg-red-100 border-red-300';
-    }
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-medium">
-            Practice mode
-          </span>
-          <span className="text-gray-600">Question {question.id}/90</span>
-        </div>
-        <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
-          Finish test
-        </button>
-      </div>
-
-      {/* Progress bar */}
-      <div className="w-full bg-gray-200 rounded-full h-3 mb-8">
-        <div className="bg-purple-600 h-3 rounded-full" style={{ width: '61%' }}></div>
-      </div>
-
-      {/* Question */}
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold mb-6">
-          {question.text}
-        </h2>
-      </div>
-
-      {/* Answer options */}
-      <div className="space-y-4">
-        {question.options.map((option) => (
-          <div key={option.id} className="relative">
-            <div
-              className={`border-2 rounded-lg transition-all duration-300 ${
-                selectedAnswer ? getOptionStyle(option) : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              <button
-                onClick={() => handleAnswerSelect(option.id)}
-                disabled={selectedAnswer !== null}
-                className="w-full p-4 text-left flex items-start gap-3 disabled:cursor-not-allowed"
-              >
-                <div className="mt-1">
-                  {selectedAnswer === null ? (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
-                  ) : option.isCorrect ? (
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                  ) : selectedAnswer === option.id ? (
-                    <XCircle className="w-5 h-5 text-red-600" />
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
-                  )}
-                </div>
-                <span className="flex-1">{option.text}</span>
-              </button>
-
-              {/* Explanation */}
-              {showExplanations && (
-                <div
-                  className={`mx-4 mb-4 p-3 border rounded transition-all duration-500 ${
-                    getExplanationStyle(option)
-                  }`}
-                  style={{
-                    animation: 'slideDown 0.3s ease-out',
-                    transformOrigin: 'top'
-                  }}
-                >
-                  <p className="text-sm leading-relaxed">{option.explanation}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Feedback message */}
-      {selectedAnswer && (
-        <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
-          <CheckCircle className="w-6 h-6 text-green-600" />
-          <div>
-            <p className="font-semibold text-green-800">
-              {question.options.find(opt => opt.id === selectedAnswer)?.isCorrect 
-                ? "Correct answer. Good job!" 
-                : "Incorrect answer."}
-            </p>
-            <p className="text-sm text-green-700 mt-1">
-              Review the explanations above to learn more.
-            </p>
-          </div>
-        </div>
-      )}
-
-      <style jsx>{`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Quiz System</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/lucide-static@0.263.1/font/lucide.css">
+    <style>
         @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-      `}</style>
-    </div>
-  );
-};
+        .slide-down {
+            animation: slideDown 0.3s ease-out;
+            transform-origin: top;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-export default QuizSystem;
+    <script type="text/babel">
+        const { useState } = React;
+        
+        // Icon components
+        const CheckCircle = () => (
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+        
+        const XCircle = () => (
+            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const QuizSystem = () => {
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const [showExplanations, setShowExplanations] = useState(false);
+
+            const question = {
+                id: 55,
+                text: "In digital forensics, which of the following is MOST crucial to consider when determining the requirements for an investigative report?",
+                options: [
+                    {
+                        id: 1,
+                        text: "The software tools used in the investigation",
+                        explanation: "While software tools are important for conducting the investigation, they are not the most crucial factor when determining report requirements. The tools used should be documented, but they don't drive the report structure.",
+                        isCorrect: false
+                    },
+                    {
+                        id: 2,
+                        text: "The intended audience of the report",
+                        explanation: "This is the correct answer. The intended audience is the MOST crucial factor because it determines the level of technical detail, format, language, and content structure. Reports for technical teams differ significantly from those for management or legal teams.",
+                        isCorrect: true
+                    },
+                    {
+                        id: 3,
+                        text: "The personal preferences of the forensic analyst",
+                        explanation: "Personal preferences should not dictate report requirements. Reports must follow established standards and meet the needs of the intended audience, not the analyst's preferences.",
+                        isCorrect: false
+                    },
+                    {
+                        id: 4,
+                        text: "The geographical location of the incident",
+                        explanation: "While location may affect legal requirements and jurisdiction, it is not the most crucial factor for determining report requirements. The audience's needs take precedence.",
+                        isCorrect: false
+                    }
+                ]
+            };
+
+            const handleAnswerSelect = (optionId) => {
+                setSelectedAnswer(optionId);
+                setTimeout(() => {
+                    setShowExplanations(true);
+                }, 300);
+            };
+
+            const getOptionStyle = (option) => {
+                if (!selectedAnswer) return '';
+                
+                if (option.isCorrect) {
+                    return 'border-green-500 bg-green-50';
+                } else if (selectedAnswer === option.id && !option.isCorrect) {
+                    return 'border-red-500 bg-red-50';
+                }
+                return 'opacity-70';
+            };
+
+            const getExplanationStyle = (option) => {
+                if (option.isCorrect) {
+                    return 'bg-green-100 border-green-300';
+                } else {
+                    return 'bg-red-100 border-red-300';
+                }
+            };
+
+            return (
+                <div className="max-w-4xl mx-auto p-6">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded text-sm font-medium">
+                                Practice mode
+                            </span>
+                            <span className="text-gray-600">Question {question.id}/90</span>
+                        </div>
+                        <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors">
+                            Finish test
+                        </button>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-3 mb-8">
+                        <div className="bg-purple-600 h-3 rounded-full" style={{ width: '61%' }}></div>
+                    </div>
+
+                    {/* Question */}
+                    <div className="mb-6">
+                        <h2 className="text-lg font-semibold mb-6">
+                            {question.text}
+                        </h2>
+                    </div>
+
+                    {/* Answer options */}
+                    <div className="space-y-4">
+                        {question.options.map((option) => (
+                            <div key={option.id} className="relative">
+                                <div
+                                    className={`border-2 rounded-lg transition-all duration-300 ${
+                                        selectedAnswer ? getOptionStyle(option) : 'border-gray-300 hover:border-gray-400'
+                                    }`}
+                                >
+                                    <button
+                                        onClick={() => handleAnswerSelect(option.id)}
+                                        disabled={selectedAnswer !== null}
+                                        className="w-full p-4 text-left flex items-start gap-3 disabled:cursor-not-allowed"
+                                    >
+                                        <div className="mt-1">
+                                            {selectedAnswer === null ? (
+                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
+                                            ) : option.isCorrect ? (
+                                                <CheckCircle />
+                                            ) : selectedAnswer === option.id ? (
+                                                <XCircle />
+                                            ) : (
+                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
+                                            )}
+                                        </div>
+                                        <span className="flex-1">{option.text}</span>
+                                    </button>
+
+                                    {/* Explanation */}
+                                    {showExplanations && (
+                                        <div
+                                            className={`mx-4 mb-4 p-3 border rounded slide-down ${
+                                                getExplanationStyle(option)
+                                            }`}
+                                        >
+                                            <p className="text-sm leading-relaxed">{option.explanation}</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Feedback message */}
+                    {selectedAnswer && (
+                        <div className="mt-8 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                            <CheckCircle />
+                            <div>
+                                <p className="font-semibold text-green-800">
+                                    {question.options.find(opt => opt.id === selectedAnswer)?.isCorrect 
+                                        ? "Correct answer. Good job!" 
+                                        : "Incorrect answer."}
+                                </p>
+                                <p className="text-sm text-green-700 mt-1">
+                                    Review the explanations above to learn more.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<QuizSystem />);
+    </script>
+</body>
+</html>
