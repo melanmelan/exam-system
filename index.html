@@ -101,7 +101,6 @@
             border-radius: 8px;
             transition: all 0.3s ease;
             overflow: hidden;
-            position: relative;
         }
 
         .option-wrapper.correct {
@@ -168,16 +167,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .selection-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #9ca3af;
-            border-radius: 50%;
-            position: absolute;
-            left: 24px;
-            top: 24px;
         }
 
         .explanation {
@@ -391,10 +380,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     `;
-                    // Add selection dot for incorrect answer
-                    const dot = document.createElement('div');
-                    dot.className = 'selection-dot';
-                    wrapper.appendChild(dot);
                 } else {
                     wrapper.classList.add('unselected');
                 }
